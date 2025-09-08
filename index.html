@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">💰 Expense Tracker</h1>
+            <p class="text-gray-600">Keep track of your spending and stay on budget</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Expenses</p>
+                        <p class="text-2xl font-bold text-gray-800" id="totalExpenses">$0.00</p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <span class="text-red-600 text-xl">📊</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">This Month</p>
+                        <p class="text-2xl font-bold text-gray-800" id="monthlyExpenses">$0.00</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <span class="text-blue-600 text-xl">📅</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Transactions</p>
+                        <p class="text-2xl font-bold text-gray-800" id="totalTransactions">0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <span class="text-green-600 text-xl">🧾</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Add Expense Form -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <span class="mr-2">➕</span> Add New Expense
+                </h2>
+                
+                <form id="expenseForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="description" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                               placeholder="e.g., Coffee, Groceries, Gas">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="amount" step="0.01" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                               placeholder="0.00">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="category" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            <option value="">Select a category</option>
+                            <option value="Food & Dining">🍽️ Food & Dining</option>
+                            <option value="Transportation">🚗 Transportation</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Entertainment">🎬 Entertainment</option>
+                            <option value="Bills & Utilities">💡 Bills & Utilities</option>
+                            <option value="Healthcare">🏥 Healthcare</option>
+                            <option value="Education">📚 Education</option>
+                            <option value="Other">📦 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                        <input type="date" id="date" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                        Add Expense
+                    </button>
+                </form>
+            </div>
+
+            <!-- Category Breakdown -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <span class="mr-2">📈</span> Category Breakdown
+                </h2>
+                <div id="categoryBreakdown" class="space-y-3">
+                    <div class="text-center text-gray-500 py-8">
+                        <span class="text-4xl mb-2 block">📊</span>
+                        <p>Add expenses to see category breakdown</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Expenses -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-100">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <span class="mr-2">📋</span> Recent Expenses
+                </h2>
+            </div>
+            <div class="p-6">
+                <div id="expensesList" class="space-y-3">
+                    <div class="text-center text-gray-500 py-8">
+                        <span class="text-4xl mb-2 block">💸</span>
+                        <p>No expenses yet. Add your first expense above!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ExpenseTracker {
+            constructor() {
+                this.expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+                this.init();
+            }
+
+            init() {
+                // Set today's date as default
+                document.getElementById('date').valueAsDate = new Date();
+                
+                // Bind form submission
+                document.getElementById('expenseForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addExpense();
+                });
+
+                // Initial render
+                this.render();
+            }
+
+            addExpense() {
+                const description = document.getElementById('description').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const category = document.getElementById('category').value;
+                const date = document.getElementById('date').value;
+
+                const expense = {
+                    id: Date.now(),
+                    description,
+                    amount,
+                    category,
+                    date,
+                    timestamp: new Date().toISOString()
+                };
+
+                this.expenses.unshift(expense);
+                this.saveToStorage();
+                this.render();
+                this.clearForm();
+                this.showSuccessMessage();
+            }
+
+            deleteExpense(id) {
+                this.expenses = this.expenses.filter(expense => expense.id !== id);
+                this.saveToStorage();
+                this.render();
+            }
+
+            saveToStorage() {
+                localStorage.setItem('expenses', JSON.stringify(this.expenses));
+            }
+
+            clearForm() {
+                document.getElementById('expenseForm').reset();
+                document.getElementById('date').valueAsDate = new Date();
+            }
+
+            showSuccessMessage() {
+                const button = document.querySelector('button[type="submit"]');
+                const originalText = button.textContent;
+                button.textContent = '✅ Added!';
+                button.classList.add('bg-green-500');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-green-500');
+                }, 1500);
+            }
+
+            calculateTotals() {
+                const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+                
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                const monthlyTotal = this.expenses
+                    .filter(expense => {
+                        const expenseDate = new Date(expense.date);
+                        return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+                    })
+                    .reduce((sum, expense) => sum + expense.amount, 0);
+
+                return { total, monthlyTotal };
+            }
+
+            getCategoryBreakdown() {
+                const breakdown = {};
+                this.expenses.forEach(expense => {
+                    if (!breakdown[expense.category]) {
+                        breakdown[expense.category] = 0;
+                    }
+                    breakdown[expense.category] += expense.amount;
+                });
+                return breakdown;
+            }
+
+            render() {
+                this.renderSummary();
+                this.renderCategoryBreakdown();
+                this.renderExpensesList();
+            }
+
+            renderSummary() {
+                const { total, monthlyTotal } = this.calculateTotals();
+                
+                document.getElementById('totalExpenses').textContent = `$${total.toFixed(2)}`;
+                document.getElementById('monthlyExpenses').textContent = `$${monthlyTotal.toFixed(2)}`;
+                document.getElementById('totalTransactions').textContent = this.expenses.length;
+            }
+
+            renderCategoryBreakdown() {
+                const breakdown = this.getCategoryBreakdown();
+                const container = document.getElementById('categoryBreakdown');
+                
+                if (Object.keys(breakdown).length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <span class="text-4xl mb-2 block">📊</span>
+                            <p>Add expenses to see category breakdown</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const total = Object.values(breakdown).reduce((sum, amount) => sum + amount, 0);
+                
+                container.innerHTML = Object.entries(breakdown)
+                    .sort(([,a], [,b]) => b - a)
+                    .map(([category, amount]) => {
+                        const percentage = ((amount / total) * 100).toFixed(1);
+                        const categoryIcon = this.getCategoryIcon(category);
+                        
+                        return `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="mr-3">${categoryIcon}</span>
+                                    <span class="font-medium text-gray-700">${category}</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-gray-800">$${amount.toFixed(2)}</div>
+                                    <div class="text-sm text-gray-500">${percentage}%</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+
+            getCategoryIcon(category) {
+                const icons = {
+                    'Food & Dining': '🍽️',
+                    'Transportation': '🚗',
+                    'Shopping': '🛍️',
+                    'Entertainment': '🎬',
+                    'Bills & Utilities': '💡',
+                    'Healthcare': '🏥',
+                    'Education': '📚',
+                    'Other': '📦'
+                };
+                return icons[category] || '📦';
+            }
+
+            renderExpensesList() {
+                const container = document.getElementById('expensesList');
+                
+                if (this.expenses.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <span class="text-4xl mb-2 block">💸</span>
+                            <p>No expenses yet. Add your first expense above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.expenses
+                    .slice(0, 10) // Show only recent 10 expenses
+                    .map(expense => {
+                        const date = new Date(expense.date).toLocaleDateString();
+                        const categoryIcon = this.getCategoryIcon(expense.category);
+                        
+                        return `
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-2xl">${categoryIcon}</span>
+                                    <div>
+                                        <div class="font-medium text-gray-800">${expense.description}</div>
+                                        <div class="text-sm text-gray-500">${expense.category} • ${date}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-semibold text-red-600">-$${expense.amount.toFixed(2)}</span>
+                                    <button onclick="tracker.deleteExpense(${expense.id})" 
+                                            class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+        }
+
+        // Initialize the expense tracker
+        const tracker = new ExpenseTracker();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97bca5ae1284a6dc',t:'MTc1NzMxNTY0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
